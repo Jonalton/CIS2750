@@ -1,5 +1,7 @@
 #include "parser.h"
 
+
+/*Reads file and parses through it*/
 fileData* readFile(char* filename){
     FILE *fp;
 
@@ -40,6 +42,7 @@ fileData* readFile(char* filename){
     
 }
 
+/*prints the output*/
 void printData(fileData *data){
     int type = data->f[1].faceType;
     int numFaces = data->f[1].numFaces;
@@ -62,6 +65,7 @@ void printData(fileData *data){
 
 }
 
+/*prints vectors*/
 void printV(fileData *d, int type, int numFaces){
     int i;
     int j;
@@ -80,6 +84,7 @@ void printV(fileData *d, int type, int numFaces){
     }
 }
 
+/*prints textures*/
 void printVT(fileData *d, int type, int numFaces){
     int i;
     int j;
@@ -97,6 +102,8 @@ void printVT(fileData *d, int type, int numFaces){
     }
 }
 
+
+/*prints normals*/
 void printVN(fileData *d, int type, int numFaces){
     int i;
     int j;
@@ -113,6 +120,7 @@ void printVN(fileData *d, int type, int numFaces){
     }
 }
 
+/*free everything*/
 void freeData(fileData *data){
     freeArray(data->v,data->vSize);
     freeArray(data->vn,data->vnSize);
@@ -123,6 +131,7 @@ void freeData(fileData *data){
     free(data);
 }
 
+/*parse through file*/
 void parse(char* buffer,fileData *data, FILE* fp){
     char tok[5];
     int cont = 1;
@@ -209,7 +218,7 @@ void parse(char* buffer,fileData *data, FILE* fp){
 }
 
 
-
+/*store each line*/
 void getLine(char c,char *buffer,FILE *fp){
     strncat(buffer,&c,1);
     while ((c=getc(fp)) != '\n'){
@@ -218,6 +227,7 @@ void getLine(char c,char *buffer,FILE *fp){
     
 }
 
+/*gets group name*/
 void getGroupName(char *buffer, fileData *data){
     int i;
     i = 2;
@@ -229,6 +239,7 @@ void getGroupName(char *buffer, fileData *data){
     }
 }
 
+/*gets object name*/
 void getObjectName(char* buffer, fileData *data){
     int i;
     i = 2;
@@ -241,6 +252,7 @@ void getObjectName(char* buffer, fileData *data){
     strncat(data->oName,"\0",1);
 }
 
+/*allocates faces*/
 faces* allocFaces(int size){
     faces *temp = malloc(sizeof(faces)*size);
     int i;
@@ -252,6 +264,7 @@ faces* allocFaces(int size){
     return temp;
 }
 
+/*realllocates faces*/
 faces* reallocFaces(faces *f, int *size){
     int prevSize = *size;
     int i;
@@ -265,7 +278,7 @@ faces* reallocFaces(faces *f, int *size){
     return f;
 }
 
-
+/*creates 2D array*/
 float** create2DArray(int size, int index){
     float** temp = malloc(sizeof(float*)*size);
     int i;
@@ -282,6 +295,7 @@ float** create2DArray(int size, int index){
     return temp;
 }
 
+/*free array*/
 void freeArray(float** arr,int size){
     int i;
     for (i=0; i<size; i++){
@@ -293,6 +307,7 @@ void freeArray(float** arr,int size){
     free(arr);
 }
 
+/*free faces*/
 void freeFaces(faces *f,int size){
     int i;
     for (i = 0; i < size; i++){
@@ -303,6 +318,7 @@ void freeFaces(faces *f,int size){
     free(f);
 }
 
+/*reallocates 2D array*/
 float** realloc2DArray(float** ptr,int *size,int index){
     int prevSize = *size;
     int i;
@@ -314,27 +330,31 @@ float** realloc2DArray(float** ptr,int *size,int index){
     return ptr;
 }
 
+/*gets vertices*/
 void getVertices(char* buffer, float** v,int count){
     parseData("v",buffer,v[count],3);
 }
 
+/*gets normals*/
 void getNormals(char* buffer, float **vn, int count){
     parseData("vn",buffer,vn[count],3);
 }
 
+/*gets textures*/
 void getTextures(char *buffer, float **vt, int count){
     parseData("vt", buffer, vt[count],2);
 }
 
+/*gets faces*/
 void getFaces(char* buffer, faces *f, int count){
     parseFaces(buffer,&f[count]);  
 }
 
+/*parses through faces data*/
 void parseFaces(char* buffer,faces *f){
     char space[] = " ";
     char **temp = malloc(sizeof(char*));
     int i = 0;
-    /*int j;*/
     char *ptr = strtok(buffer,space);
 
     while(ptr != NULL){
@@ -342,19 +362,14 @@ void parseFaces(char* buffer,faces *f){
         if (strcmp(ptr,"f") != 0){
             temp[i-1] = malloc(sizeof(char) * (strlen(ptr)+1));
             strcpy(temp[i-1],ptr);
-            /*printf("temp %s \n",temp[i-1]);*/
         }
         ptr = strtok(NULL,space);
         i++;
     }
     setFaces(temp,f,(i-1));
-    /*printf("temp %s \n",temp[i-1]);*/
-    /*for(j = 0;j<i;j++){
-        free(temp[j]);
-    }
-    free(temp);*/
 }
 
+/*sets value in face struct*/
 void setFaces(char** data, faces *f,int numFaces){
     int i;
     int id = identifyFaceType(data[0]);
@@ -379,6 +394,7 @@ void setFaces(char** data, faces *f,int numFaces){
     
 }
 
+/*sets face values*/
 void setFaceValues(faces *f,int numFaces,char **data){
     char slash[] = "/";
     char* ptr;
@@ -414,6 +430,7 @@ void setFaceValues(faces *f,int numFaces,char **data){
     
 }
 
+/*sets vertex and textures in face*/
 void setVVT(faces* f, int numFaces,char **data){
     char slash[] = "/";
     char* ptr; 
@@ -430,6 +447,7 @@ void setVVT(faces* f, int numFaces,char **data){
     free(data);
 }
 
+/*identifies input type for faces*/
 int identifyFaceType(char* str){
     int i = 0;
     int counter = 0;
@@ -442,7 +460,7 @@ int identifyFaceType(char* str){
     return counter;
 }
 
-
+/*parses through data and sets vertices,textures, and normals*/
 void parseData(char *name,char *buffer,float* arr,int index){
     char space[] = " ";
     float temp[index];
@@ -462,6 +480,7 @@ void parseData(char *name,char *buffer,float* arr,int index){
     }
 }
 
+/*gets token*/
 void getToken(char* buffer,char tok[5]){
 
     int i;
