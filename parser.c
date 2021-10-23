@@ -26,6 +26,7 @@ fileData* readFile(char* filename){
     data->fCount = 0;
 
     /*OPEN FILE*/
+    strcat(filename,".obj");
     fp = fopen(filename,"r");
     if (fp == NULL){
         printf("Error: filename not found\n");
@@ -34,7 +35,6 @@ fileData* readFile(char* filename){
 
     buffer = malloc(sizeof(char)*128);
     strcpy(buffer,"");
-
     parse(buffer,data,fp);
     free(buffer);
     fclose(fp);
@@ -126,6 +126,7 @@ void freeData(fileData *data){
     freeArray(data->vn,data->vnSize);
     freeArray(data->vt,data->vtSize);
     freeFaces(data->f,data->fSize);
+    
     free(data->gName);
     free(data->oName);
     free(data);
@@ -143,7 +144,7 @@ void parse(char* buffer,fileData *data, FILE* fp){
     if ((c = getc(fp)) != EOF){
     
         getLine(c,buffer,fp);
-    
+        /*printf("buffer: %s\n",buffer);*/
         if (buffer[0] == '#'){
             cont = 0;
         }
