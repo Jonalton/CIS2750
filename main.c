@@ -10,7 +10,6 @@ int main(int argc, char* argv[]){
     else{
         filename = malloc(sizeof(char)*(strlen(argv[1])+1));
         strcpy(filename,argv[1]);
-
         if (strcmp(argv[2],"height") == 0){
             getHeight(filename);
         }
